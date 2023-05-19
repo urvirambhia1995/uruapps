@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -32,82 +33,93 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  int _counter = 0;
   final List<Tab> myTabs = <Tab>[
     const Tab(
       child: Text(
         "Delivery",
         style: TextStyle(
-            color: Color(0xff000000), fontFamily: "inter", fontSize: 12,fontWeight: FontWeight.bold,fontStyle: FontStyle.normal),
+            color: Color(0xff000000),
+            fontFamily: "inter",
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.normal),
       ),
     ),
     const Tab(
       child: Text(
         "Subscription",
         style: TextStyle(
-            color: Color(0xff000000), fontFamily: "inter", fontSize: 12,fontWeight: FontWeight.bold,fontStyle: FontStyle.normal),
+            color: Color(0xff000000),
+            fontFamily: "inter",
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.normal),
       ),
     ),
     const Tab(
       child: Text(
         "Reviews",
         style: TextStyle(
-            color: Color(0xff000000), fontFamily: "inter", fontSize: 12,fontWeight: FontWeight.bold,fontStyle: FontStyle.normal),
+            color: Color(0xff000000),
+            fontFamily: "inter",
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.normal),
       ),
     ),
   ];
   List<dynamic> foodItem = [
-    {"foodName":"Vada Pav" , "qty":2},
-    {"foodName":"Vada Pav" , "qty":3},
-    {"foodName":"Vada Pav" , "qty":4},
-    {"foodName":"Vada Pav" , "qty":5},
-    {"foodName":"Vada Pav" , "qty":8},
-    {"foodName":"Idli" , "qty":8},
-    {"foodName":"Idli" , "qty":2},
-    {"foodName":"Idli" , "qty":1},
-    {"foodName":"Dosa" , "qty":1},
-    {"foodName":"Dosa" , "qty":4},
-    {"foodName":"Pani Puri" , "qty":2},
-    {"foodName":"Pani Puri" , "qty":4},
-    {"foodName":"Pani Puri" , "qty":1},
-    {"foodName":"Medu Vada" , "qty":1},
-    {"foodName":"Medu Vada" , "qty":4},
-    {"foodName":"Medu Vada" , "qty":3},
-    {"foodName":"Bhajiya" , "qty":3},
-    {"foodName":"Bhajiya" , "qty":2},
-
+    {"foodName": "Vada Pav", "qty": 2},
+    {"foodName": "Vada Pav", "qty": 3},
+    {"foodName": "Vada Pav", "qty": 4},
+    {"foodName": "Vada Pav", "qty": 5},
+    {"foodName": "Vada Pav", "qty": 8},
+    {"foodName": "Idli", "qty": 8},
+    {"foodName": "Idli", "qty": 2},
+    {"foodName": "Idli", "qty": 1},
+    {"foodName": "Dosa", "qty": 1},
+    {"foodName": "Dosa", "qty": 4},
+    {"foodName": "Pani Puri", "qty": 2},
+    {"foodName": "Pani Puri", "qty": 4},
+    {"foodName": "Pani Puri", "qty": 1},
+    {"foodName": "Medu Vada", "qty": 1},
+    {"foodName": "Medu Vada", "qty": 4},
+    {"foodName": "Medu Vada", "qty": 3},
+    {"foodName": "Bhajiya", "qty": 3},
+    {"foodName": "Bhajiya", "qty": 2},
   ];
+  late List<Map<String, dynamic>> uniqueFoodItems;
 
   late TabController _tabController;
-  late List<dynamic> foodName,foodQuantity;
-  late Set<dynamic> uniqueValues;
-  late List<dynamic> foodWithCount;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    foodName= foodItem.map((map) => map['foodName']).toList();
-    foodQuantity= foodItem.map((map) => map['qty']).toList();
-    uniqueValues = Set<dynamic>.from(foodName);
-    if(foodItem.map((map)=>map['foodName'])!=foodName[0]){
-      foodWithCount.add(foodItem.map((map)=>map['foodName']));
-      print(foodWithCount);
+    Map<String, int> foodMap = {};
+
+    for (var item in foodItem) {
+      String foodName = item["foodName"];
+      int qty = item["qty"];
+
+      if (foodMap.containsKey(foodName)) {
+        foodMap[foodName] = foodMap[foodName]! + qty; // Add the quantity to the existing value
+      } else {
+        foodMap[foodName] = qty;  // Add a new entry with the quantity
+      }
     }
+    uniqueFoodItems = foodMap.entries
+        .map((entry) => {
+      "foodName": entry.key,
+      "qty": entry.value,
+    })
+        .toList();
 
     _tabController = TabController(length: myTabs.length, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(body: mainUI());
   }
 
@@ -243,44 +255,124 @@ class _MyHomePageState extends State<MyHomePage>
             height: MediaQuery.of(context).size.height * 0.6,
             child: Scaffold(
               body: DefaultTabController(
-                  length: _tabController.length,
-                   child: Scaffold(
-                     body: Column(
-                       children: [
-                         TabBar(
-                           indicatorColor: Color(0xff112982),
-                           controller: _tabController,
-                           tabs: myTabs,
-
-                         ),
-                         Expanded(child:
-                         TabBarView(
+                length: _tabController.length,
+                child: Scaffold(
+                  body: Column(
+                    children: [
+                      TabBar(
+                        indicatorColor: Color(0xff112982),
+                        controller: _tabController,
+                        tabs: myTabs,
+                      ),
+                      Expanded(
+                        child: TabBarView(
                           controller: _tabController,
                           children: [
                             Container(
                               color: Colors.white,
                               child: ListView.builder(
-                                itemCount: uniqueValues.length,
+                                itemCount: uniqueFoodItems.length,
                                 itemBuilder: (context, index) {
-                                 // dynamic item = uniqueValues[index];
+                                  var item = uniqueFoodItems[index];
                                   return ListTile(
-
                                     title: Card(
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          Text("0"),
-                                          Row(
-                                            children: const [
-                                              Text("Quantity"),
-                                              Text("3"),
-                                            ],
+                                      shape: RoundedRectangleBorder(
+                                          side: const BorderSide(
+                                            color: Colors.white24,
+                                            width: 1.0,
+                                          ),
 
-                                          )
+                                          borderRadius:
+                                              BorderRadius.circular(2)),
 
-                                        ],
+                                      elevation: 10,
+                                      shadowColor: Colors.white,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Row(
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Card(
+
+                                                        shape: RoundedRectangleBorder(
+                                                            side: const BorderSide(
+                                                              color: Colors.green,
+                                                              width: 1.0,
+                                                            ),
+                                                            borderRadius:
+                                                            BorderRadius.circular(0)),
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(2.0),
+                                                          child: Image.asset("Assets/Veg.png",),
+                                                        )),
+                                                    const SizedBox(width: 2,),
+                                                    const Text("Veg",style: TextStyle(color: Colors.green),)
+                                                  ],
+                                                ),
+                                                Text(
+                                                  item["foodName"],
+                                                  style: const TextStyle(
+                                                      color: Color(0x3c000000),
+                                                      fontFamily: "inter",
+                                                      fontSize: 22,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontStyle: FontStyle.normal),
+                                                ),
+                                              ],
+                                            ),
+                                            Spacer(),
+                                            Card(
+                                              shape: RoundedRectangleBorder(
+                                                  side: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1.0,
+                                                  ),
+                                                  borderRadius:
+                                                  BorderRadius.circular(5)),
+                                              elevation: 10,
+                                              shadowColor: Colors.white,
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Row(
+                                                  children: [
+                                                    const Text(
+                                                      "Qty",
+                                                      style: TextStyle(
+                                                          color: Color(0xff000000),
+                                                          fontFamily: "inter",
+                                                          fontSize: 12,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontStyle:
+                                                          FontStyle.normal),
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Text(
+                                                      item["qty"].toString(),
+                                                      style: const TextStyle(
+                                                          color: Color(
+                                                              0xff59b052),
+                                                          fontFamily: "inter",
+                                                          fontSize: 12,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontStyle:
+                                                          FontStyle.normal),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   );
@@ -288,20 +380,21 @@ class _MyHomePageState extends State<MyHomePage>
                               ),
                             ),
                             Container(
-                              color: Colors.blue,
+                              color: Colors.white24,
+                              alignment: Alignment.center,
+                              child: const Text("This is Subscription Page"),
                             ),
                             Container(
-                              color: Colors.yellow,
-                            )
+                              color: Colors.white24,
+                              alignment: Alignment.center,
+                              child: const Text("This is Reviews Page"),                            )
                           ],
                         ),
                       )
                     ],
-                     ),
-                   ) ,
-
+                  ),
+                ),
               ),
-
             ),
           )
         ],
